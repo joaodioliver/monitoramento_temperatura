@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 import sqlite3
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 
@@ -25,7 +26,6 @@ CREATE TABLE IF NOT EXISTS temperaturas (
 """)
 conn.commit()
 
-
 # ---------------------------
 # Rota API - Receber temperatura do cliente
 # ---------------------------
@@ -44,7 +44,6 @@ def receber_temperatura():
 
     return jsonify({"message": "Temperatura recebida com sucesso!"})
 
-
 # ---------------------------
 # Rota API - Retornar dados em JSON para o gráfico
 # ---------------------------
@@ -56,12 +55,10 @@ def temperaturas_json():
     dados = cursor.fetchall()
     conn.close()
 
-    # Monta JSON para enviar ao Chart.js
     temperaturas = [float(linha[0]) for linha in dados][::-1]
     tempos = [linha[1] for linha in dados][::-1]
 
     return jsonify({"temperaturas": temperaturas, "tempos": tempos})
-
 
 # ---------------------------
 # Rota do DASHBOARD
@@ -70,9 +67,15 @@ def temperaturas_json():
 def dashboard():
     return render_template("dashboard.html")
 
-
 # ---------------------------
-# Iniciar servidor
+# Iniciar servidor — MODO HÍBRIDO
 # ---------------------------
 if __name__ == '__main__':
-    app.run()
+    ambiente = os.environ.get("RENDER", "LOCAL")
+
+    if ambiente == "LOCAL":
+        print("➡ Rodando em modo LOCAL")
+        app.run(debug=True, host="127.0.0.1", port=5000)
+    else:
+        print("➡ Rodando no Render (Gunicorn gerencia o servidor)")
+        app.run()
