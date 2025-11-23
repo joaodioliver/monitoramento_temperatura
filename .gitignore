@@ -1,0 +1,13 @@
+# Banco de dados
+temperaturas.db
+
+# Cache do Python
+__pycache__/
+*.pyc
+
+# Ambiente virtual (caso use)
+venv/
+env/
+
+# Arquivos temporários
+*.log

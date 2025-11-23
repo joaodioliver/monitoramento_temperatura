@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard de Temperatura</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body class="bg-dark text-light">
+
+<div class="container mt-4">
+
+    <h1 class="text-center mb-4">Monitoramento de Temperatura</h1>
+
+    <!-- ALERTA -->
+    <div id="alerta" class="alert alert-danger text-center fw-bold d-none">
+        ⚠ Temperatura passou de 70°C!
+    </div>
+
+    <!-- GRÁFICO -->
+    <div class="card bg-secondary p-4">
+        <canvas id="graficoTemp" height="120"></canvas>
+    </div>
+</div>
+
+
+<script>
+// Configuração inicial do gráfico
+let ctx = document.getElementById("graficoTemp").getContext("2d");
+
+let grafico = new Chart(ctx, {
+    type: "line",
+    data: {
+        labels: [],
+        datasets: [{
+            label: "Temperatura (°C)",
+            data: [],
+            borderWidth: 3,
+            borderColor: "white"
+        }]
+    },
+    options: {
+        scales: {
+            y: { beginAtZero: false }
+        }
+    }
+});
+
+
+// Função para atualizar o gráfico em tempo real
+async function atualizarGrafico() {
+    const resp = await fetch("/temperaturas_json");
+    const dados = await resp.json();
+
+    grafico.data.labels = dados.tempos;
+    grafico.data.datasets[0].data = dados.temperaturas;
+    grafico.update();
+
+    // ALERTA DE TEMPERATURA ALTA
+    let alertaDiv = document.getElementById("alerta");
+    const limite = 70;
+
+    if (dados.temperaturas.some(t => t > limite)) {
+        alertaDiv.classList.remove("d-none");
+    } else {
+        alertaDiv.classList.add("d-none");
+    }
+}
+
+// Atualiza a cada 2 segundos
+setInterval(atualizarGrafico, 2000);
+
+</script>
+
+</body>
+</html>
