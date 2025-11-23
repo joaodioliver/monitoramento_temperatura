@@ -9,7 +9,7 @@ def gerar_temperatura():
 
 # Envia temperatura para o servidor Flask
 def enviar_temperatura(temperatura):
-    url = "http://127.0.0.1:5000/api/temperatura"
+    url = "https://monitoramento-temperatura.onrender.com/api/temperatura"
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     dados = {
